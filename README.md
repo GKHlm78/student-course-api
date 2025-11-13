@@ -23,7 +23,7 @@ L’objectif est d’améliorer la qualité du code et la couverture de tests à
 
 - Gestion des étudiants et des cours (création, modification, suppression, inscription).
 - Règles métier : unicité email/titre, pagination, recherche, suppression protégée, etc.
-- API REST documentée avec Swagger.
+- API REST documentée avec Swagger. 
 
 ## À faire
 
