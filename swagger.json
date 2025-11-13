@@ -6,15 +6,52 @@
     "description": "API pédagogique pour gérer étudiants et cours (no DB)"
   },
   "tags": [
-    { "name": "Courses", "description": "Gestion des cours" }
+    { "name": "Courses", "description": "Gestion des cours" },
+    { "name": "Students", "description": "Gestion des étudiants" }
   ],
   "paths": {
     "/courses": {
-      "get": { 
-        "tags": ["Courses"], 
-        "summary": "Liste des cours", 
-        "responses": { "200": { "description": "OK" } } },
+      "get": {
+        "tags": ["Courses"],
+        "summary": "Liste des cours",
+        "parameters": [
+          {
+            "name": "title",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" },
+            "description": "Filtrer par titre (contient)"
+          },
+          {
+            "name": "teacher",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" },
+            "description": "Filtrer par enseignant (contient)"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 1 },
+            "description": "Numéro de page (pagination)"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 10 },
+            "description": "Nombre d'éléments par page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste paginée des cours retournée avec succès"
+          }
+        }
+      },
       "post": {
+        "tags": ["Courses"],
         "summary": "Créer un cours",
         "requestBody": {
           "required": true,
@@ -22,36 +59,275 @@
             "application/json": {
               "schema": {
                 "type": "object",
-                "properties": { "title": { "type": "string" }, "teacher": { "type": "string" } },
+                "properties": {
+                  "title": { "type": "string" },
+                  "teacher": { "type": "string" }
+                },
                 "required": ["title", "teacher"]
               }
             }
           }
         },
         "responses": {
-          "201": { "description": "Créé" },
-          "400": { "description": "Paramètres invalides" }
+          "201": { "description": "Cours créé" },
+          "400": {
+            "description": "Paramètres invalides ou titre déjà utilisé"
+          }
         }
       }
     },
     "/courses/{id}": {
       "get": {
+        "tags": ["Courses"],
         "summary": "Récupérer un cours",
         "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
-        ],
-        "responses": { "200": { "description": "OK" }, "404": { "description": "Non trouvé" } }
-      },
-      "delete": {
-        "summary": "Supprimer un cours",
-        "parameters": [
-          { "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
         ],
         "responses": {
-          "204": { "description": "Supprimé" },
-          "404": { "description": "Non trouvé" }
+          "200": { "description": "Cours trouvé (avec liste des étudiants inscrits)" },
+          "404": { "description": "Cours non trouvé" }
+        }
+      },
+      "put": {
+        "tags": ["Courses"],
+        "summary": "Mettre à jour un cours",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "title": { "type": "string" },
+                  "teacher": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Cours mis à jour" },
+          "400": { "description": "Titre déjà utilisé" },
+          "404": { "description": "Cours non trouvé" }
+        }
+      },
+      "delete": {
+        "tags": ["Courses"],
+        "summary": "Supprimer un cours",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Cours supprimé" },
+          "400": {
+            "description": "Suppression impossible (des étudiants sont inscrits au cours)"
+          },
+          "404": { "description": "Cours non trouvé" }
+        }
+      }
+    },
+    "/courses/{courseId}/students/{studentId}": {
+      "post": {
+        "tags": ["Courses"],
+        "summary": "Inscrire un étudiant à un cours",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "201": { "description": "Étudiant inscrit au cours" },
+          "400": {
+            "description": "Erreur d'inscription (cours ou étudiant introuvable, déjà inscrit, cours plein)"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Courses"],
+        "summary": "Désinscrire un étudiant d'un cours",
+        "parameters": [
+          {
+            "name": "courseId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          },
+          {
+            "name": "studentId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Étudiant désinscrit du cours" },
+          "404": { "description": "Inscription introuvable" }
+        }
+      }
+    },
+    "/students": {
+      "get": {
+        "tags": ["Students"],
+        "summary": "Liste des étudiants",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" },
+            "description": "Filtrer par nom (contient)"
+          },
+          {
+            "name": "email",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string" },
+            "description": "Filtrer par email (contient)"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 1 },
+            "description": "Numéro de page (pagination)"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 10 },
+            "description": "Nombre d'éléments par page"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Liste paginée des étudiants retournée avec succès"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Students"],
+        "summary": "Créer un étudiant",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "email": { "type": "string", "format": "email" }
+                },
+                "required": ["name", "email"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Étudiant créé" },
+          "400": {
+            "description": "Paramètres invalides ou email déjà utilisé"
+          }
+        }
+      }
+    },
+    "/students/{id}": {
+      "get": {
+        "tags": ["Students"],
+        "summary": "Récupérer un étudiant",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Étudiant trouvé (avec la liste de ses cours)"
+          },
+          "404": { "description": "Étudiant non trouvé" }
+        }
+      },
+      "put": {
+        "tags": ["Students"],
+        "summary": "Mettre à jour un étudiant",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string" },
+                  "email": { "type": "string", "format": "email" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Étudiant mis à jour" },
+          "400": { "description": "Email déjà utilisé" },
+          "404": { "description": "Étudiant non trouvé" }
+        }
+      },
+      "delete": {
+        "tags": ["Students"],
+        "summary": "Supprimer un étudiant",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" }
+          }
+        ],
+        "responses": {
+          "204": { "description": "Étudiant supprimé" },
+          "400": {
+            "description": "Suppression impossible (étudiant inscrit à un cours)"
+          },
+          "404": { "description": "Étudiant non trouvé" }
         }
       }
     }
   }
 }
+
