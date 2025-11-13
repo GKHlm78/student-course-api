@@ -53,3 +53,5 @@ npm run dev
 ---
 
 **À vous de jouer pour améliorer la qualité et la fiabilité du projet !**
+
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/2106bf2e3dbf4fdbaa90212141ff2dbe)](https://app.codacy.com/gh/GKHlm78/student-course-api/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
