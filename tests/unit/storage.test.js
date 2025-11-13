@@ -109,9 +109,16 @@ describe('Storage — Enrollment', () => {
     storage.enroll(1, 1)
     storage.enroll(2, 1)
     storage.enroll(3, 1)
-    const result = storage.enroll(4, 1)
-    expect(result.error).toBe('Course is full')
+
+    const extra = storage.create('students', {
+    name: 'Extra',
+    email: 'extra@example.com'
   })
+
+    const result = storage.enroll(extra.id, 1)
+    expect(result.error).toBe('Course is full')
+})
+
 
   test('should unenroll a student', () => {
     storage.enroll(1, 1)
@@ -141,9 +148,7 @@ describe('Storage — Helpers', () => {
   })
 
   test('reset should reset IDs', () => {
-    storage.create('students', { name: 'X', email: 'x@x.com' })
     storage.reset()
-    storage.seed()
     const newStudent = storage.create('students', {
       name: 'Zed',
       email: 'zed@example.com'
