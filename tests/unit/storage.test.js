@@ -111,14 +111,13 @@ describe('Storage — Enrollment', () => {
     storage.enroll(3, 1)
 
     const extra = storage.create('students', {
-    name: 'Extra',
-    email: 'extra@example.com'
-  })
+      name: 'Extra',
+      email: 'extra@example.com'
+    })
 
     const result = storage.enroll(extra.id, 1)
     expect(result.error).toBe('Course is full')
-})
-
+  })
 
   test('should unenroll a student', () => {
     storage.enroll(1, 1)

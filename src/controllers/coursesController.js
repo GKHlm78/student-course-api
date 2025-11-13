@@ -14,10 +14,10 @@ exports.listCourses = (req, res) => {
   const { title, teacher, page = 1, limit = 10 } = req.query
 
   if (title) {
-    courses = courses.filter(c => c.title.includes(title))
+    courses = courses.filter((c) => c.title.includes(title))
   }
   if (teacher) {
-    courses = courses.filter(c => c.teacher.includes(teacher))
+    courses = courses.filter((c) => c.teacher.includes(teacher))
   }
 
   const start = (page - 1) * limit
@@ -130,7 +130,10 @@ exports.updateCourse = (req, res) => {
 
   const { title, teacher } = req.body
 
-  if (title && storage.list('courses').find(c => c.title === title && c.id !== course.id)) {
+  if (
+    title &&
+    storage.list('courses').find((c) => c.title === title && c.id !== course.id)
+  ) {
     return res.status(400).json({ error: 'Course title must be unique' })
   }
 
@@ -143,4 +146,3 @@ exports.updateCourse = (req, res) => {
 
   return res.json(course)
 }
-

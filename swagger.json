@@ -89,7 +89,9 @@
           }
         ],
         "responses": {
-          "200": { "description": "Cours trouvé (avec liste des étudiants inscrits)" },
+          "200": {
+            "description": "Cours trouvé (avec liste des étudiants inscrits)"
+          },
           "404": { "description": "Cours non trouvé" }
         }
       },
@@ -330,4 +332,3 @@
     }
   }
 }
-
